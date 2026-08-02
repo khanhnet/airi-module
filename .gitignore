@@ -1,0 +1,32 @@
+# ── Python ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# ── Virtual environment (QUAN TRỌNG: không bao giờ đẩy lên) ──
+.venv/
+venv/
+env/
+ENV/
+
+# ── IDE / Editor ───────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── OS ─────────────────────────────────────────────────
+Thumbs.db
+.DS_Store
+
+# ── File test tạm / audio output (tạo lại được) ───────
+p-*.json
+test-*.mp3
+out-*.mp3
+out-*.wav
+out-*.ogg
+*.tmp
