@@ -1,4 +1,56 @@
-# 🎙️ tts-edge — Edge TTS + Whisper STT (OpenAI-compatible) cho Project AIRI
+# 🎙️ tts-edge — TTS tiếng Việt cho Project AIRI (2 engine song song)
+
+Hai server TTS, cùng API chuẩn OpenAI, cắm thẳng vào **Project AIRI**:
+
+| Server | Engine | Port | Đặc điểm |
+|---|---|---|---|
+| `server.py` | **Edge TTS** (Microsoft cloud) | **8766** | 7 giọng neural Việt, chất lượng studio, cần internet |
+| `server-vieneu.py` | **VieNeu-TTS v3 Turbo** (local) | **8767** | 14 giọng Bắc/Trung/Nam, 48kHz, offline, clone giọng, emotion cues |
+
+> ⚠️ Edge cần internet · VieNeu offline 100% (model tải 1 lần ~vài trăm MB). Chạy song song —
+> trong AIRI tạo 2 Service Source và chọn theo nhu cầu.
+
+---
+
+## 🦜 VieNeu-TTS v3 Turbo (server-vieneu.py, port 8767)
+
+Giọng **100% local** (ONNX int8 trên CPU, torch-free — máy AMD không CUDA vẫn nhanh, RTF < 1):
+
+- **14 giọng preset** theo 3 miền: Bắc (`Trúc Ly`, `Minh Đức`, `Đoan Trang`...), Trung (`Quang Sơn`, `Ngọc Trân`), Nam (`Xuân Vĩnh`, `Thùy Dung`...)
+- **3 style đọc**: `tu_nhien` (tự nhiên) · `tin_tuc` (tin tức) · `doc_truyen` (kể chuyện)
+- **Emotion cues** ngay trong text: `[cười]`, `[thở dài]`, `[hắng giọng]`
+- **Clone giọng**: từ clip 3–8s (API nâng cao, xem `vieneu` SDK)
+- Âm thanh 48kHz; `wav` native, `mp3/ogg/opus/webm/aac/flac` qua ffmpeg
+- `speed` 0.5–2.0 (ffmpeg atempo, giữ nguyên pitch)
+
+### Chạy
+
+```bash
+start-vieneu.bat        # tự setup venv lần đầu; server tại http://127.0.0.1:8767/
+```
+
+Test nhanh:
+
+```bash
+curl -X POST http://127.0.0.1:8767/v1/audio/speech \
+  -H "Content-Type: application/json" \
+  -d "{\"voice\":\"Trúc Ly:doc_truyen\",\"input\":\"Ngày xửa ngày xưa...\",\"response_format\":\"mp3\"}" \
+  -o truyen.mp3
+```
+
+Voice: `Trúc Ly`, `Trúc Ly:doc_truyen`, `Mai Anh`, `Quang Sơn`... — xem đủ tại
+`GET /v1/audio/voices` hoặc trang test `http://127.0.0.1:8767/`.
+
+> 👩 **Giọng mặc định = `Trúc Ly`** (Nữ · Bắc · tự nhiên). Client không khai `voice`
+> (hoặc dùng `alloy/nova/shimmer/...`) sẽ được giọng nữ này. Muốn đổi mặc định, sửa
+> `DEFAULT_VOICE` ở đầu `server-vieneu.py` rồi chạy lại server.
+
+> ⚠️ Lần request đầu tiên sẽ tải model từ HuggingFace (vài trăm MB) — hãy đợi.
+> Biến môi trường: `TTS_VIENEU_PORT` (8767), `TTS_VIENEU_HOST` (127.0.0.1).
+
+---
+
+## 🗣️ Edge TTS (server.py, port 8766)
 
 Server **TTS + STT** 100% local (trừ giọng TTS Edge cần internet), giao tiếp theo **API chuẩn
 OpenAI** nên cắm thẳng vào **Project AIRI**:
